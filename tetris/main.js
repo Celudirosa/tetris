@@ -56,8 +56,58 @@ const piece = {
   ]
 }
 
+// random pieces
+const PIECES = [
+  [
+    [1, 1],
+    [1, 1]
+  ],
+  [
+    [1, 1, 1, 1]
+  ],
+  [
+    [0, 1, 0],
+    [1, 1, 1]
+  ],
+  [
+    [1, 1, 0],
+    [0, 1, 1]
+  ],
+  [
+    [1, 0],
+    [1, 0],
+    [1, 1]
+  ]
+]
+
 // game loop
-function update () {
+
+// function update () {
+//   draw()
+//   window.requestAnimationFrame(update)
+// }
+
+// auto drop
+let dropCounter = 0
+let lastTime = 0
+
+function update (time = 0) {
+  const deltaTime = time - lastTime
+  lastTime = time
+
+  dropCounter += deltaTime
+
+  if (dropCounter > 1000) {
+    piece.position.y++
+    dropCounter = 0
+
+    if (checkCollision()) {
+      piece.position.y--
+      solidifyPiece()
+      removeRows()
+    }
+  }
+
   draw()
   window.requestAnimationFrame(update)
 }
@@ -120,16 +170,19 @@ function checkCollision () {
 }
 
 function solidifyPiece () {
-  piece.shape.forEach((row, x) => {
-    row.forEach((value, y) => {
+  piece.shape.forEach((row, y) => {
+    row.forEach((value, x) => {
       if (value === 1) {
         board[y + piece.position.y][x + piece.position.x] = 1
       }
     })
   })
 
+  // reset position
   piece.position.x = 0
   piece.position.y = 0
+  // get random shape
+  piece.shape = PIECES[Math.floor(Math.random() * PIECES.length)]
 }
 
 function removeRows () {
